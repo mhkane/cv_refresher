@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-BLUE = [255,0,0]
+BLUE = [0,255,0]
 
 img1 = cv2.imread('image_1.jpg')
 
