@@ -24,3 +24,17 @@ def compute_nb_errors(train_input, train_target, test_input, test_target, mean =
     	if predicted != int(test_targert[ind]):
       		error_count+=1
 	return error_count
+
+
+#Exercise 3
+def PCA(x):
+  assert(len(x)>1)
+  mean = torch.mean(x,0)
+  mean_shifted_x = x - mean
+  n = len(x)
+  cov = (1.0/(n-1)) * torch.mm(torch.t(mean_shifted_x),mean_shifted_x)
+  eig_val,eig_vec = torch.eig(cov,True)
+  sorted, indices = torch.sort(eig_val,0,descending=True)
+  list_index = indices[:,0]
+  eig_vec = eig_veg[list_index,:]
+  return mean, eig_vec
