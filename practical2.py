@@ -13,18 +13,19 @@ def nearest_classification(train_input, train_target, x):
 
 #Exercise_2
 def compute_nb_errors(train_input, train_target, test_input, test_target, mean = None, proj = None):
-	error_count =0
-	if mean != None:
-		train_input = train_input-mean
-		test_input = test_input-mean
-  	if proj != None:
-    	train_input = torch.mm(train_input,torch.t(proj))
-    	test_input = torch.mm(test_input,torch.t(proj))
-  	for ind in range(len(test_input)):
-    	predicted = nearest_classification(train_input,train_target,test)
-    	if predicted != int(test_targert[ind]):
-      		error_count+=1
-	return error_count
+    error_count =0
+    if type(mean)!=type(None):
+        train_input = train_input-mean
+        test_input = test_input-mean
+    if type(proj)!=type(None):
+        train_input = torch.mm(train_input,torch.t(proj))
+        test_input = torch.mm(test_input,torch.t(proj))
+    for ind in range(len(test_input)):
+        test = test_input[ind]
+        predicted = nearest_classification(train_input,train_target,test)
+        if predicted != int(test_target[ind]):
+            error_count+=1
+    return error_count
 
 #Exercise 3
 def PCA_2(x):
@@ -59,11 +60,28 @@ print eig_vec
 
 #Exercise 4 
 #Load MNIST 
-train_input_mnist , train_target_mnist, test_input_mnist, test_target_mnist = prologue.load_data(flatten=False)
+train_input_mnist , train_target_mnist, test_input_mnist, test_target_mnist = prologue.load_data(flatten=True)
 
 #Load CIFAR 
-train_input_cifar , train_target_cifar, test_input_cifar, test_target_cifar = prologue.load_data(cifar=True, flatten=False)
+train_input_cifar , train_target_cifar, test_input_cifar, test_target_cifar = prologue.load_data(cifar=True, flatten=True)
+
+#PCA comparison for mnist
+num_components = 16
+pca = PCA(n_components=num_components)
+pca.fit(train_input_mnist) #Learn num_components principal components from training set
+projection_matrix_pca = torch.FloatTensor(pca.components_)
+compute_nb_errors(torch.tensor(train_input_mnist),train_target_mnist,torch.tensor(test_input_mnist),test_target_mnist,proj=projection_matrix_pca) #Errors for PCA as projection matrix
+random_projection_matrix =  torch.empty(projection_matrix_pca.size()[0],projection_matrix_pca.size()[1]).normal_()
+compute_nb_errors(torch.tensor(train_input_mnist),train_target_mnist,torch.tensor(test_input_mnist),test_target_mnist,proj=random_projection_matrix)
+
+#PCA comparison for CIFAR
+num_components = 16
+pca = PCA(n_components=num_components)
+pca.fit(train_input_cifar) #Learn num_components principal components from training set
+projection_matrix_pca = torch.FloatTensor(pca.components_)
+compute_nb_errors(torch.tensor(train_input_cifar),train_target_cifar,torch.tensor(test_input_cifar),test_target_cifar,proj=projection_matrix_pca) #Errors for PCA as projection matrix
+random_projection_matrix =  torch.empty(projection_matrix_pca.size()[0],projection_matrix_pca.size()[1]).normal_()
+compute_nb_errors(torch.tensor(train_input_cifar),train_target_cifar,torch.tensor(test_input_cifar),test_target_cifar,proj=random_projection_matrix)
 
 
 
-#First learn to load and read data from MNIST, CIFAR 
