@@ -1,6 +1,6 @@
 import torch
 from torch import Tensor
-#import dlc_practical_prologue as prologue
+import dlc_practical_prologue as prologue
 from sklearn.decomposition import PCA 
 import numpy as np
 
@@ -55,3 +55,15 @@ Y = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
 Y = torch.FloatTensor(Y)
 mean, eig_vec = PCA_2(Y)
 print eig_vec
+
+
+#Exercise 4 
+#Load MNIST 
+train_input_mnist , train_target_mnist, test_input_mnist, test_target_mnist = prologue.load_data(flatten=False)
+
+#Load CIFAR 
+train_input_cifar , train_target_cifar, test_input_cifar, test_target_cifar = prologue.load_data(cifar=True, flatten=False)
+
+
+
+#First learn to load and read data from MNIST, CIFAR 
