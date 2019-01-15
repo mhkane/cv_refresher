@@ -42,3 +42,9 @@ for n, p in f.named_parameters(): print(n, p.size())
 x = torch.empty(523, 10).normal_()
 y = f(x)
 y.size()
+
+f = torch.nn.MSELoss()
+
+x = torch.tensor([[ 3. ]])
+y = torch.tensor([[ 0. ]])
+f(x, y)
