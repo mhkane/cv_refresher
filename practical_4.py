@@ -57,15 +57,18 @@ train_input, train_target = Variable(train_input), Variable(train_target)
 model, criterion = Net(), nn.MSELoss()
 eta, mini_batch_size = 1e-1, 100
 
-for e in range(0, 25):
-    sum_loss = 0
+
+def train_model(model, train_input, train_target, mini_batch_size):
     # We do this with mini-batches
-    for b in range(0, train_input.size(0), mini_batch_size):
-        output = model(train_input.narrow(0, b, mini_batch_size))
-        loss = criterion(output, train_target.narrow(0, b, mini_batch_size))
-        sum_loss = sum_loss + loss.item()
-        model.zero_grad()
-        loss.backward()
-        for p in model.parameters():
-            p.data.sub_(eta * p.grad.data)
-    print(e, sum_loss)
+    for e in range(0, 25):
+        sum_loss = 0
+        for b in range(0, train_input.size(0), mini_batch_size):
+            output = model(train_input.narrow(0, b, mini_batch_size))
+            loss = criterion(output, train_target.narrow(0, b, mini_batch_size))
+            sum_loss = sum_loss + loss.item()
+            model.zero_grad()
+            loss.backward()
+            for p in model.parameters():
+                p.data.sub_(eta * p.grad.data)
+        print(e,sum_loss)
+train_model(model, train_input, train_target, mini_batch_size)
