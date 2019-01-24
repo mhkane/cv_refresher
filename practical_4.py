@@ -38,12 +38,12 @@ train_input, train_target, test_input, test_target = \
     prologue.load_data(one_hot_labels = True, normalize = True, flatten = False)
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self,hidden=200):
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
-        self.fc1 = nn.Linear(256, 200)
-        self.fc2 = nn.Linear(200, 10)
+        self.fc1 = nn.Linear(256, hidden)
+        self.fc2 = nn.Linear(hidden, 10)
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), kernel_size=3, stride=3))
@@ -55,7 +55,36 @@ class Net(nn.Module):
 train_input, train_target = Variable(train_input), Variable(train_target)
 
 model, criterion = Net(), nn.MSELoss()
-eta, mini_batch_size = 1e-1, 100
+eta, mini_batch_size = 1e-1, 200
+
+
+def filter_val(x,val):
+  if x==val:
+    return 1
+  else:
+    return 0
+def error(output,target):
+  error_count =0
+  for ind in range(len(output)):
+    if not(torch.equal(output[ind],target[ind])):
+        error_count+=1
+  return error_count
+def max_out(x):
+    '''Winner takes all transformation on vector x'''
+    max_value = torch.max(x)
+    v = [filter_val(i,max_value) for i in x] 
+    return torch.Tensor(v)
+
+
+
+def compute_nb_errors(model, input, target, mini_batch_size):
+    num_errors = 0 
+    for b in range(0, train_input.size(0), mini_batch_size):
+        output = model(input.narrow(0, b, mini_batch_size))
+        output_take_all = [max_out(u) for u in output]
+        target_take_all = target.narrow(0,b,mini_batch_size)
+        num_errors+=error(output_take_all,target_take_all)
+    return float(num_errors)/len(target)
 
 
 def train_model(model, train_input, train_target, mini_batch_size):
@@ -71,4 +100,7 @@ def train_model(model, train_input, train_target, mini_batch_size):
             for p in model.parameters():
                 p.data.sub_(eta * p.grad.data)
         print(e,sum_loss)
+
 train_model(model, train_input, train_target, mini_batch_size)
+
+print(compute_nb_errors(model, test_input, test_target, mini_batch_size))
